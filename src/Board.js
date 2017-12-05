@@ -13,21 +13,21 @@ export default class Board extends Component{
     handleClick(i){
         let myTurn = this.state.myTurn;
         const squares = this.state.squares.slice();
-        if(squares[i] === null && myTurn === true ){
+
+        if(winner(squares)) return;
+
+        if(squares[i] === null && myTurn ){
             squares[i] = 'X';
             myTurn = false;
             this.setState( { squares, myTurn } );
 
-        }else if( squares[i] === null && myTurn === false ) {
+        }else if( squares[i] === null && !myTurn ) {
             squares[i] = 'O';
             myTurn = true;
             this.setState( { squares, myTurn } );
 
         }
-        console.log(myTurn);
     }
-
-
 
     renderSquare(i){
        return(
@@ -38,8 +38,23 @@ export default class Board extends Component{
        );
     }
 
+    resetGame(){
+        this.setState(
+            {
+                squares: Array(9).fill(null),
+                myTurn: true,
+            }
+        )
+    }
+
     render(){
-        const status = "Next Player: X";
+        const theWinner = winner(this.state.squares);
+        let status;
+        if(theWinner){
+            status = `The winner is inner: ${theWinner}`
+        }else {
+            status = `Who's next ${this.state.myTurn ? 'X' : 'O'}`;
+        }
 
         return(
             <div>
@@ -59,8 +74,31 @@ export default class Board extends Component{
                     {this.renderSquare(7)}
                     {this.renderSquare(8)}
                 </div>
+                <button onClick={ () => this.resetGame()}>
+                    Reset Game
+                </button>
             </div>
         );
     }
 
+}
+
+function winner( squares) {
+    const lines = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+    ];
+    for (let i = 0; i < lines.length; i++) {
+        const [a, b, c] = lines[i];
+        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+            return squares[a];
+        }
+    }
+    return null;
 }
