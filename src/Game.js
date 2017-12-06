@@ -115,4 +115,3 @@ function winner(squares) {
     }
     return null;
 }
-
