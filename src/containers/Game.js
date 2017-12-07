@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
+import  { connect }from 'react-redux'
 
-import Board from "./Board";
+import Board from "../components/Board";
 
-export default class Game extends Component {
+class Game extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -115,3 +116,23 @@ function winner(squares) {
     }
     return null;
 }
+
+const mapStateToProps = (state) => {
+    return{
+        turns:{
+            history: null,
+            stepNumber: 0,
+            myTurn: null,
+        }
+
+    }
+}
+
+const mapDispatchToProps = (dispacth) =>{
+    return{
+
+    }
+}
+
+
+export  default connect(mapStateToProps, mapDispatchToProps)(Game);
