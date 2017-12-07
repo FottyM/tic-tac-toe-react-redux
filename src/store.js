@@ -7,5 +7,5 @@ import turnsReducer from './reducers/turnsReducer'
 export default createStore(
     combineReducers({turnsReducer}),
     {},
-    applyMiddleware(logger, thunks)
+    applyMiddleware(logger, thunk)
 );

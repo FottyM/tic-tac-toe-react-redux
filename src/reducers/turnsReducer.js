@@ -1,19 +1,20 @@
 const state = {
-
+    history: [{
+        squares: Array(9).fill(null),
+    }],
+    stepNumber: 0,
+    myTurn: true,
 };
 
-const turnsReducer = (state = {...state}, action)=>{
+const turnsReducer = ( state = {...state}, action)=>{
+    console.log(state);
     switch (action.type){
         case "CHANGE_TURN":
-            break;
+            return state;
         default:
-            state = {...state};
-            break;
+            return state;
 
     }
-
-    return state
-
 };
 
 export  default turnsReducer;

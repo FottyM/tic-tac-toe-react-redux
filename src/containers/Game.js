@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import  { connect }from 'react-redux'
+import PropTypes from 'prop-types'
 
 import Board from "../components/Board";
 
@@ -55,6 +56,7 @@ class Game extends Component {
     }
 
     render() {
+        console.log(this.props,"props");
         const history = this.state.history;
         const current = history[this.state.stepNumber];
         const squares = current.squares;
@@ -82,7 +84,8 @@ class Game extends Component {
                 <div className="game-board">
                     <Board
                         squares={squares}
-                        onClick={(i) => this.handleClick(i)}
+                        onClick={(i) => this.props.changeTurn(i)}
+                        // onClick={(i) => this.handleClick(i)}
                     />
                 </div>
                 <div className="game-info">
@@ -96,6 +99,32 @@ class Game extends Component {
         )
     }
 }
+
+
+
+const mapStateToProps = (state) => {
+    console.log(state);
+    return{
+        turns: state.turnsReducer,
+    }
+};
+
+const mapDispatchToProps = (dispacth) =>{
+    return{
+        changeTurn: (index) => {
+            dispacth({
+                type: 'CHANGE_TURN',
+                payload: index
+            })
+        }
+    }
+};
+
+
+export  default connect(mapStateToProps, mapDispatchToProps)(Game);
+
+
+
 
 function winner(squares) {
     const lines = [
@@ -116,23 +145,3 @@ function winner(squares) {
     }
     return null;
 }
-
-const mapStateToProps = (state) => {
-    return{
-        turns:{
-            history: null,
-            stepNumber: 0,
-            myTurn: null,
-        }
-
-    }
-}
-
-const mapDispatchToProps = (dispacth) =>{
-    return{
-
-    }
-}
-
-
-export  default connect(mapStateToProps, mapDispatchToProps)(Game);
