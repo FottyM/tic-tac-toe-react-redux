@@ -1,64 +1,22 @@
 import React, { Component } from 'react';
 import  { connect }from 'react-redux'
-import PropTypes from 'prop-types'
+import propTypes from 'prop-types'
 
 import Board from "../components/Board";
 
 class Game extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            history: [{
-                squares: Array(9).fill(null),
-            }],
-            stepNumber: 0,
-            myTurn: true,
-        }
-    }
-
-    handleClick(i) {
-        const history = this.state.history.slice(0, this.state.stepNumber + 1);
-        const current = history[history.length - 1];
-        const squares = current.squares.slice();
-        const myTurn = this.state.myTurn;
-
-        if (winner(squares)) return;
-
-        if (squares[i] === null && myTurn) {
-            squares[i] = 'X';
-            this.setState({
-                history: history.concat([{
-                    squares: squares
-                }]),
-                stepNumber: history.length,
-                myTurn: !this.state.myTurn,
-            });
-
-        } else if (squares[i] === null && !myTurn) {
-            squares[i] = 'O';
-            this.setState({
-                history: history.concat([{
-                    squares: squares
-                }]),
-                stepNumber: history.length,
-                myTurn: !this.state.myTurn,
-            });
-        }
-    }
-
     jumpTo(step) {
+        return this.props.jumpSteps(step);
+    }
 
-        this.setState({
-            stepNumber: step,
-            myTurn: ( step % 2 ) === 0
-        });
-
+    handleClick(index){
+        return this.props.changeTurns(index);
     }
 
     render() {
-        console.log(this.props,"props");
-        const history = this.state.history;
-        const current = history[this.state.stepNumber];
+
+        const history = this.props.history;
+        const current = history[this.props.stepNumber];
         const squares = current.squares;
         const theWinner = winner(squares);
         let status;
@@ -76,7 +34,7 @@ class Game extends Component {
         if (theWinner) {
             status = `Winner: ${theWinner}`;
         } else {
-            status = `${this.state.myTurn ? 'X' : 'O'}'s turn now :)`;
+            status = `${this.props.myTurn ? 'X' : 'O'}'s turn now :)`;
         }
 
         return (
@@ -84,8 +42,7 @@ class Game extends Component {
                 <div className="game-board">
                     <Board
                         squares={squares}
-                        onClick={(i) => this.props.changeTurn(i)}
-                        // onClick={(i) => this.handleClick(i)}
+                        onClick={(i) => this.handleClick(i)}
                     />
                 </div>
                 <div className="game-info">
@@ -103,20 +60,26 @@ class Game extends Component {
 
 
 const mapStateToProps = (state) => {
-    console.log(state);
     return{
-        turns: state.turnsReducer,
+        ...state.turnsReducer,
     }
 };
 
 const mapDispatchToProps = (dispacth) =>{
     return{
-        changeTurn: (index) => {
+        changeTurns (index){
             dispacth({
                 type: 'CHANGE_TURN',
                 payload: index
             })
+        },
+        jumpSteps (step){
+            dispacth({
+                type: "JUMP_STEP",
+                payload: step
+            })
         }
+
     }
 };
 
