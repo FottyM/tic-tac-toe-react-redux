@@ -6,7 +6,7 @@ const initialState = {
     myTurn: true,
 };
 
-const turnsReducer = ( state = initialState, action)=>{
+const turnsReducer = ( state = initialState, action) => {
 
     switch (action.type){
         case "CHANGE_TURN":
@@ -19,15 +19,15 @@ const turnsReducer = ( state = initialState, action)=>{
     }
 };
 
-const jumpTo = (step, state)=>{
+function jumpTo(step, state) {
     return {
         ...state,
         stepNumber:step,
         myTurn: ( step % 2 ) === 0
     }
-};
+}
 
-const changerTurns = (i, state)=>{
+function changerTurns(i, state) {
 
     const history = state.history.slice(0, state.stepNumber + 1);
     const current = history[history.length - 1];
@@ -57,9 +57,9 @@ const changerTurns = (i, state)=>{
             myTurn: !state.myTurn,
         };
     }
-};
+}
 
-const winner =  (squares) =>{
+function winner (squares) {
     const lines = [
         [0, 1, 2],
         [3, 4, 5],
@@ -77,6 +77,6 @@ const winner =  (squares) =>{
         }
     }
     return null;
-};
+}
 
 export  default turnsReducer;

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import  { connect }from 'react-redux'
-import propTypes from 'prop-types'
+import {changeTurns, jumpSteps} from "../actions/turnsAction";
 
 import Board from "../components/Board";
 
@@ -65,19 +65,13 @@ const mapStateToProps = (state) => {
     }
 };
 
-const mapDispatchToProps = (dispacth) =>{
+const mapDispatchToProps = (dispacth) => {
     return{
         changeTurns (index){
-            dispacth({
-                type: 'CHANGE_TURN',
-                payload: index
-            })
+            dispacth(changeTurns(index))
         },
         jumpSteps (step){
-            dispacth({
-                type: "JUMP_STEP",
-                payload: step
-            })
+            dispacth(jumpSteps(step))
         }
 
     }
