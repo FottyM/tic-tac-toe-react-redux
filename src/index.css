@@ -1,6 +1,6 @@
 body {
     font: 14px 'Bad Script', cursive;
-    margin: 40px;
+    margin: 60px;
 
     /* Begin The Redundancies */
     /*https://codepen.io/montanaflynn/pen/cbuvy?editors=0110*/
@@ -73,4 +73,9 @@ ol, ul {
 .game-info {
     margin-left: 20px;
 }
+
+.neat{
+    background-color: aquamarine;
+}
+
 

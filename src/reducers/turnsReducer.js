@@ -59,7 +59,7 @@ function changerTurns(i, state) {
     }
 }
 
-function winner (squares) {
+export function winner (squares) {
     const lines = [
         [0, 1, 2],
         [3, 4, 5],

@@ -3,20 +3,131 @@ import  { connect }from 'react-redux'
 import {changeTurns, jumpSteps} from "../actions/turnsAction";
 
 import Board from "../components/Board";
+import { winner }from '../reducers/turnsReducer'
 
 class Game extends Component {
+
     jumpTo(step) {
         return this.props.jumpSteps(step);
     }
 
     handleClick(index){
-        return this.props.changeTurns(index);
+        let singlePlayer = false
+        if(singlePlayer){
+            return 1;
+        }else return this.props.changeTurns(index);
+    }
+
+     winning(board, player){
+        if(
+            (board[0] === player && board[1] === player && board[2] === player) ||
+            (board[3] === player && board[4] === player && board[5] === player) ||
+            (board[6] === player && board[7] === player && board[8] === player) ||
+            (board[0] === player && board[3] === player && board[6] === player) ||
+            (board[1] === player && board[4] === player && board[7] === player) ||
+            (board[2] === player && board[5] === player && board[8] === player) ||
+            (board[0] === player && board[4] === player && board[8] === player) ||
+            (board[2] === player && board[4] === player && board[6] === player)
+        ){
+            return true;
+
+        }else return false;
+    }
+
+
+    tie(board) {
+        let moves = board.join('').replace(/ /g, '');
+        if (moves.length === 9) {
+            return true;
+        }
+        return false;
+    }
+
+    copyBoard(baord){
+        return baord.slice(0);
+    }
+
+    validMove(move, player, board){
+        let newBoad = this.copyBoard(board);
+        if(newBoad[move] === null){
+            newBoad[move] = player;
+            return newBoad;
+        }else return null;
+    }
+
+    findAiMove(board) {
+        let bestMoveScore = 100;
+        let move = null;
+        if(this.winning(board, 'X') || this.winning(board, 'O' || this.tie(board))) {
+            return null;
+        }
+        for(let i = 0; i < board.length; i++){
+            let newBoard = this.validMove(i, this.state.minPlayer, board);
+            if(newBoard) {
+                let moveScore = this.maxScore(newBoard);
+                if (moveScore < bestMoveScore) {
+                    bestMoveScore = moveScore;
+                    move = i;
+                }
+            }
+        }
+        return move;
+    }
+
+    minScore(board) {
+        if (this.winning(board, 'X')) {
+            return 10;
+        } else if (this.winning(board, 'O')) {
+            return -10;
+        } else if (this.tie(board)) {
+            return 0;
+        } else {
+            let bestMoveValue = 100;
+            let move = 0;
+            for (let i = 0; i < board.length; i++) {
+                let newBoard = this.validMove(i, this.state.minPlayer, board);
+                if (newBoard) {
+                    let predictedMoveValue = this.state.maxScore(newBoard);
+                    if (predictedMoveValue < bestMoveValue) {
+                        bestMoveValue = predictedMoveValue;
+                        move = i;
+                    }
+                }
+            }
+            return bestMoveValue;
+        }
+    }
+
+    maxScore(board) {
+        if(this.winning(board, 'X')) {
+            return 10;
+        } else if(this.winning(board, 'O')) {
+            return -10;
+        } else if(this.tie(board)) {
+            return 0;
+        } else {
+            let bestMoveValue = -100;
+            let move = 0;
+            for (let i = 0; i < board.length; i++) {
+                let newBoard = this.validMove(i, this.state.maxPlayer, board);
+                if (newBoard) {
+                    let predictedMoveValue = this.minScore(newBoard);
+                    if (predictedMoveValue > bestMoveValue) {
+                        bestMoveValue = predictedMoveValue;
+                        move = i;
+                    }
+                }
+            }
+            return bestMoveValue;
+        }
     }
 
     render() {
 
-        const history = this.props.history;
-        const current = history[this.props.stepNumber];
+        console.log(this.props);
+
+        const history = this.props.mp.history;
+        const current = history[this.props.mp.stepNumber];
         const squares = current.squares;
         const theWinner = winner(squares);
         let status;
@@ -38,19 +149,45 @@ class Game extends Component {
         }
 
         return (
-            <div className="game">
-                <div className="game-board">
-                    <Board
-                        squares={squares}
-                        onClick={(i) => this.handleClick(i)}
-                    />
+            <div className="container">
+                <div className="row">
+                    One
                 </div>
-                <div className="game-info">
+                <div className="row">
+                    Two
+                    <div className="col neat">1</div>
+                    <div className="col">2</div>
+                    <div className="col neat">3</div>
+                </div>
+                <div className="row">
+                    Three
+                    <div className="col">4</div>
+                    <div className="col neat">5</div>
+                    <div className="col">6</div>
+                </div>
+                <div className="row">
+                    Four
+                    <div className="col neat">7</div>
+                    <div className="col">8</div>
+                    <div className="col neat">9</div>
+                </div>
+                <div className="row">
+                    Five
+                    <div className="game">
+                    <div className="game-board">
+                    <Board
+                    squares={squares}
+                    onClick={(i) => this.handleClick(i)}
+                    />
+                    </div>
+                    <div className="game-info">
                     <div> {status}</div>
 
                     <ol>
-                        {moves}
+                    {moves}
                     </ol>
+                    </div>
+                    </div>
                 </div>
             </div>
         )
@@ -61,7 +198,8 @@ class Game extends Component {
 
 const mapStateToProps = (state) => {
     return{
-        ...state.turnsReducer,
+        mp: state.turnsReducer,
+        sp: state.singlePlayerReducer
     }
 };
 
@@ -79,26 +217,3 @@ const mapDispatchToProps = (dispacth) => {
 
 
 export  default connect(mapStateToProps, mapDispatchToProps)(Game);
-
-
-
-
-function winner(squares) {
-    const lines = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-    ];
-    for (let i = 0; i < lines.length; i++) {
-        const [a, b, c] = lines[i];
-        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return squares[a];
-        }
-    }
-    return null;
-}
