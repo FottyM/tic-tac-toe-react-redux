@@ -4,6 +4,7 @@ import {changeTurns, jumpSteps} from "../actions/turnsAction";
 
 import Board from "../components/Board";
 import { winner }from '../reducers/turnsReducer'
+import {spChangeTurns} from "../actions/singlePlayerAction";
 
 class Game extends Component {
 
@@ -14,7 +15,7 @@ class Game extends Component {
     handleClick(index){
         let singlePlayer = false
         if(singlePlayer){
-            return 1;
+            return this.props.spChangeTurns(index);
         }else return this.props.changeTurns(index);
     }
 
@@ -49,7 +50,7 @@ class Game extends Component {
 
     validMove(move, player, board){
         let newBoad = this.copyBoard(board);
-        if(newBoad[move] === null){
+        if(newBoad[move] === ' '){
             newBoad[move] = player;
             return newBoad;
         }else return null;
@@ -122,14 +123,34 @@ class Game extends Component {
         }
     }
 
-    render() {
+    gameUpdate(move){
+        let player = this.props.sp.turn;
+        let currentGameBoard = this.validMove(move, player, this.props.sp.board);
+        if(this.winning(currentGameBoard, player)){
+            this.props.spChangeTurns({
+                board:currentGameBoard,
+                winner: player
+            });
+            return;
+        }
+        if(this.tie(currentGameBoard)){
+            this.props.spChangeTurns({
+               board: currentGameBoard,
+               winner: 'd'
+            });
+            return;
+        }
 
-        console.log(this.props);
+    }
+
+    render() {
 
         const history = this.props.mp.history;
         const current = history[this.props.mp.stepNumber];
-        const squares = current.squares;
+        // const squares = current.squares;
+        const squares = this.props.sp.board;
         const theWinner = winner(squares);
+
         let status;
 
         const moves = history.map((step, move) => {
@@ -177,7 +198,7 @@ class Game extends Component {
                     <div className="game-board">
                     <Board
                     squares={squares}
-                    onClick={(i) => this.handleClick(i)}
+                    onClick={(i) => this.gameUpdate(i)}
                     />
                     </div>
                     <div className="game-info">
@@ -210,7 +231,12 @@ const mapDispatchToProps = (dispacth) => {
         },
         jumpSteps (step){
             dispacth(jumpSteps(step))
+        },
+        spChangeTurns(values){
+            debugger;
+            dispacth(spChangeTurns(values))
         }
+
 
     }
 };

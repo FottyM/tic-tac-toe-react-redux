@@ -10,7 +10,8 @@ const turnsReducer = ( state = initialState, action) => {
 
     switch (action.type){
         case "CHANGE_TURN":
-            return changerTurns( action.payload, state);
+            state = changerTurns( action.payload, state);
+            return {...state}
         case "JUMP_STEP":
             return jumpTo( action.payload, state);
         default:
