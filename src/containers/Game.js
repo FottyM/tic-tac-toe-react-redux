@@ -13,13 +13,14 @@ class Game extends Component {
     }
 
     handleClick(index){
-        let singlePlayer = false
+        let singlePlayer = true;
         if(singlePlayer){
             return this.props.spChangeTurns(index);
         }else return this.props.changeTurns(index);
     }
 
      winning(board, player){
+
         if(
             (board[0] === player && board[1] === player && board[2] === player) ||
             (board[3] === player && board[4] === player && board[5] === player) ||
@@ -32,28 +33,28 @@ class Game extends Component {
         ){
             return true;
 
-        }else return false;
+        }else return null;
     }
 
 
     tie(board) {
         let moves = board.join('').replace(/ /g, '');
-        if (moves.length === 9) {
-            return true;
-        }
-        return false;
+        return moves.length === 9;
+
     }
 
     copyBoard(baord){
-        return baord.slice(0);
+        return baord.slice();
     }
 
     validMove(move, player, board){
         let newBoad = this.copyBoard(board);
-        if(newBoad[move] === ' '){
+
+        if(newBoad[move] !== '') return;
+        if(newBoad[move] === ''){
             newBoad[move] = player;
             return newBoad;
-        }else return null;
+        }
     }
 
     findAiMove(board) {
@@ -63,7 +64,7 @@ class Game extends Component {
             return null;
         }
         for(let i = 0; i < board.length; i++){
-            let newBoard = this.validMove(i, this.state.minPlayer, board);
+            let newBoard = this.validMove(i, this.props.sp.minPlayer, board);
             if(newBoard) {
                 let moveScore = this.maxScore(newBoard);
                 if (moveScore < bestMoveScore) {
@@ -86,9 +87,9 @@ class Game extends Component {
             let bestMoveValue = 100;
             let move = 0;
             for (let i = 0; i < board.length; i++) {
-                let newBoard = this.validMove(i, this.state.minPlayer, board);
+                let newBoard = this.validMove(i, this.props.sp.minPlayer, board);
                 if (newBoard) {
-                    let predictedMoveValue = this.state.maxScore(newBoard);
+                    let predictedMoveValue = this.maxScore(newBoard);
                     if (predictedMoveValue < bestMoveValue) {
                         bestMoveValue = predictedMoveValue;
                         move = i;
@@ -110,7 +111,7 @@ class Game extends Component {
             let bestMoveValue = -100;
             let move = 0;
             for (let i = 0; i < board.length; i++) {
-                let newBoard = this.validMove(i, this.state.maxPlayer, board);
+                let newBoard = this.validMove(i, this.props.sp.maxPlayer, board);
                 if (newBoard) {
                     let predictedMoveValue = this.minScore(newBoard);
                     if (predictedMoveValue > bestMoveValue) {
@@ -126,14 +127,18 @@ class Game extends Component {
     gameUpdate(move){
         let player = this.props.sp.turn;
         let currentGameBoard = this.validMove(move, player, this.props.sp.board);
+
         if(this.winning(currentGameBoard, player)){
+
             this.props.spChangeTurns({
-                board:currentGameBoard,
+                board: currentGameBoard,
                 winner: player
             });
             return;
         }
+
         if(this.tie(currentGameBoard)){
+
             this.props.spChangeTurns({
                board: currentGameBoard,
                winner: 'd'
@@ -141,12 +146,36 @@ class Game extends Component {
             return;
         }
 
+        player = 'O';
+
+        currentGameBoard = this.validMove(this.findAiMove(currentGameBoard), player, currentGameBoard);
+
+        if(this.winning(currentGameBoard, player)){
+            this.props.spChangeTurns({
+                board: currentGameBoard,
+                winner: player
+            });
+            return;
+        }
+
+        if(this.tie(currentGameBoard)){
+            this.props.spChangeTurns({
+                board: currentGameBoard,
+                winner: player
+            });
+            return;
+        }
+
+        this.props.spChangeTurns({
+            board: currentGameBoard,
+        });
+
     }
 
     render() {
 
         const history = this.props.mp.history;
-        const current = history[this.props.mp.stepNumber];
+        // const current = history[this.props.mp.stepNumber];
         // const squares = current.squares;
         const squares = this.props.sp.board;
         const theWinner = winner(squares);
@@ -233,7 +262,6 @@ const mapDispatchToProps = (dispacth) => {
             dispacth(jumpSteps(step))
         },
         spChangeTurns(values){
-            debugger;
             dispacth(spChangeTurns(values))
         }
 
